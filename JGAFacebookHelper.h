@@ -14,11 +14,11 @@
 @protocol JGAFacebookHelperDelegate <NSObject>
 
 - (void)helperDidLogin:(JGAFacebookHelper *)helper;
+- (void)helperDidNotLogin:(JGAFacebookHelper *)helper;
 
 @optional
 - (void)helper:(JGAFacebookHelper *)helper didCompleteRequest:(FBRequest *)request;
 - (void)helper:(JGAFacebookHelper *)helper didFailWithRequest:(FBRequest *)request;
-
 @end
 
 @interface JGAFacebookHelper : NSObject <FBSessionDelegate, FBDialogDelegate, FBRequestDelegate>

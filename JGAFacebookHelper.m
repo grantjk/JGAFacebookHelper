@@ -107,7 +107,7 @@
  */
 - (void)fbDidNotLogin:(BOOL)cancelled
 {
-    
+    [_delegate helperDidNotLogin:self];
 }
 
 /**
@@ -128,7 +128,7 @@
  */
 - (void)fbDidLogout
 {
-    
+
 }
 
 /**
@@ -138,7 +138,8 @@
  *  - the user revoked the app's permissions
  *  - the user changed his or her password
  */
-- (void)fbSessionInvalidated{
+- (void)fbSessionInvalidated
+{
     
 }
 

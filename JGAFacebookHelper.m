@@ -52,6 +52,8 @@
     if (![_facebook isSessionValid]) {
         NSArray *permissions = [NSArray arrayWithObjects:@"publish_stream", nil];      
         [_facebook authorize:permissions];
+    }else {
+        [self fbDidLogin];
     }
 }
 

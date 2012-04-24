@@ -17,32 +17,36 @@ Add the following to your app delegate:
     }
 
 Add the following to the .pch header file
-     code:
+
     #define kFbId <YOUR_ID_HERE>
     #define kFBHandleOpenUrl @"fbHandleOpenUrl" 
 
 Add an instance of JGAFacebookHelper to your view controller:
-`@property (nonatomic, strong) JGAFacebookHelper *fbHelper;`
+
+     @property (nonatomic, strong) JGAFacebookHelper *fbHelper;
 
 Make your view controller a delegate of JGAFacebookHelper
-`@interface YourViewController : UIViewController <JGAFacebookHelperDelegate>`
+     
+     @interface YourViewController : UIViewController <JGAFacebookHelperDelegate>
 
 Set up Login and Callbacks:
+     
+     - (IBAction)facebookButtonPressed:(id)sender
         if (!_fbHelper) {
             self.fbHelper = [[JGAFacebookHelper alloc] initWithDelegate:self];
             [_fbHelper login];
         }else {
             // call your sharing method
         }
- 
-    - (void)helperDidLogin:(JGAFacebookHelper *)helper
-    {
+     }
+     - (void)helperDidLogin:(JGAFacebookHelper *)helper
+     {
         // call your sharing method
-    }
-    - (void)helperDidNotLogin:(JGAFacebookHelper *)helper
-    {
+     }
+     - (void)helperDidNotLogin:(JGAFacebookHelper *)helper
+     {
         // perform any necessary cleanup
-    }
+     }
 
 
 Methods

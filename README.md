@@ -24,6 +24,7 @@ Add the following to the .pch header file
 Add an instance of JGAFacebookHelper to your view controller:
 
      @property (nonatomic, strong) JGAFacebookHelper *fbHelper;
+     @synthesize fbHelper = _fbHelper;
 
 Make your view controller a delegate of JGAFacebookHelper
      

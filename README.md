@@ -36,7 +36,6 @@ Set up Login and Callbacks:
             // call your sharing method
         }
     }
-
     - (void)helperDidLogin:(JGAFacebookHelper *)helper
     {
         // call your sharing method

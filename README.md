@@ -28,16 +28,13 @@ Make your view controller a delegate of JGAFacebookHelper
 `@interface YourViewController : UIViewController <JGAFacebookHelperDelegate>`
 
 Set up Login and Callbacks:
-    code:
-    - (IBAction)facebookButtonPressed:(id)sender
-    {
         if (!_fbHelper) {
             self.fbHelper = [[JGAFacebookHelper alloc] initWithDelegate:self];
             [_fbHelper login];
         }else {
             // call your sharing method
         }
-    }
+ 
     - (void)helperDidLogin:(JGAFacebookHelper *)helper
     {
         // call your sharing method

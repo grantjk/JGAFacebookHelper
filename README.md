@@ -11,40 +11,40 @@ import "JGAFacebookHelper.h" wherever you need it
 
 Add the following to your app delegate:
 
-`- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
-    [[NSNotificationCenter defaultCenter] postNotificationName:kFBHandleOpenUrl object:url];
-    return YES;
-}`
+    - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+        [[NSNotificationCenter defaultCenter] postNotificationName:kFBHandleOpenUrl object:url];
+        return YES;
+    }
 
 Add the following to the .pch header file
-`#define kFbId <YOUR_ID_HERE>
-#define kFBHandleOpenUrl @"fbHandleOpenUrl"`
+    #define kFbId <YOUR_ID_HERE>
+    #define kFBHandleOpenUrl @"fbHandleOpenUrl" 
 
 Add an instance of JGAFacebookHelper to your view controller:
-`@property (nonatomic, strong) JGAFacebookHelper *fbHelper;`
+    @property (nonatomic, strong) JGAFacebookHelper *fbHelper;
 
 Make your view controller a delegate of JGAFacebookHelper
-`@interface YourViewController : UIViewController <JGAFacebookHelperDelegate>`
+    @interface YourViewController : UIViewController <JGAFacebookHelperDelegate>
 
 Set up Login and Callbacks:
-`- (IBAction)facebookButtonPressed:(id)sender
-{
-    if (!_fbHelper) {
-        self.fbHelper = [[JGAFacebookHelper alloc] initWithDelegate:self];
-        [_fbHelper login];
-    }else {
+    - (IBAction)facebookButtonPressed:(id)sender
+    {
+        if (!_fbHelper) {
+            self.fbHelper = [[JGAFacebookHelper alloc] initWithDelegate:self];
+            [_fbHelper login];
+        }else {
+            // call your sharing method
+        }
+    }
+
+    - (void)helperDidLogin:(JGAFacebookHelper *)helper
+    {
         // call your sharing method
     }
-}
-
-- (void)helperDidLogin:(JGAFacebookHelper *)helper
-{
-    // call your sharing method
-}
-- (void)helperDidNotLogin:(JGAFacebookHelper *)helper
-{
-    // perform any necessary cleanup
-}`
+    - (void)helperDidNotLogin:(JGAFacebookHelper *)helper
+    {
+        // perform any necessary cleanup
+    }
 
 
 Methods

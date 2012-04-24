@@ -11,7 +11,7 @@ import "JGAFacebookHelper.h" wherever you need it
 
 Add the following to your app delegate:
 
-    - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+     - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
         [[NSNotificationCenter defaultCenter] postNotificationName:kFBHandleOpenUrl object:url];
         return YES;
     }

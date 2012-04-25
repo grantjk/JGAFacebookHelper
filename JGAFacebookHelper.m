@@ -164,9 +164,15 @@
  */
 - (void)request:(FBRequest *)request didReceiveResponse:(NSURLResponse *)response
 {
-    if ([_delegate respondsToSelector:@selector(helper:didCompleteRequest:)]) {
+
+}
+
+- (void)request:(FBRequest *)request didLoad:(id)result
+{
+    if ([_delegate respondsToSelector:@selector(helper:didCompleteRequest:)])
+    {
         [_delegate helper:self didCompleteRequest:request];
-    }
+    }    
 }
 
 /**
@@ -175,6 +181,7 @@
 - (void)request:(FBRequest *)request didFailWithError:(NSError *)error
 {
     if ([_delegate respondsToSelector:@selector(helper:didFailWithRequest:)]) {
+        DLog(@"Facebook Error -> %@", error);
         [_delegate helper:self didFailWithRequest:request];
     }else{
         NSString *message = @"An error occured posting to facebook. Please try again later.";

@@ -25,9 +25,13 @@
 
 @property (nonatomic, strong) Facebook *facebook;
 @property (nonatomic, weak) id <NSObject, JGAFacebookHelperDelegate> delegate;
+@property (nonatomic, strong) NSArray *permissions;
 
-- (id)initWithDelegate:(id)delegate;
+- (id)initWithDelegate:(id)delegate permissions:(NSArray *)permissions;
 - (void)login;
 - (FBRequest *)shareImage:(UIImage *)image message:(NSString *)message;
-- (void)openDialogWithName:(NSString *)name caption:(NSString *)caption description:(NSString *)description;
+- (FBRequest *)postMessage:(NSString *)message;
+
+// link is required
+- (void)openDialogWithLink:(NSString *)link name:(NSString *)name caption:(NSString *)caption description:(NSString *)description;
 @end

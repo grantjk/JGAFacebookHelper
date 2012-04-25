@@ -15,11 +15,13 @@
 
 @synthesize facebook = _facebook;
 @synthesize delegate = _delegate;
+@synthesize permissions = _permissions;
 
-- (id)initWithDelegate:(id)delegate
+- (id)initWithDelegate:(id)delegate permissions:(NSArray *)permissions
 {
     if (self = [super init]) {
         self.delegate = delegate;
+        self.permissions = permissions;
     }
     return self;
 }
@@ -50,8 +52,8 @@
     [self checkForSavedFBToken];
 
     if (![_facebook isSessionValid]) {
-        NSArray *permissions = [NSArray arrayWithObjects:@"publish_stream", nil];      
-        [_facebook authorize:permissions];
+        [[NSNotificationCenter defaultCenter] postNotificationName:kFBLoggingIn object:nil];
+        [_facebook authorize:_permissions];
     }else {
         [self fbDidLogin];
     }
@@ -71,18 +73,31 @@
                              andHttpMethod:@"POST"
                                andDelegate:self];
 }
+- (FBRequest *)postMessage:(NSString *)message
+{
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithCapacity:2];
+    if(message)[params setObject:message forKey:@"message"];
+    
+    return [_facebook requestWithGraphPath:@"me/feed" 
+                                 andParams:params
+                             andHttpMethod:@"POST"
+                               andDelegate:self];
+}
 
 #pragma mark - Open Dialog
-- (void)openDialogWithName:(NSString *)name caption:(NSString *)caption description:(NSString *)description
+- (void)openDialogWithLink:(NSString *)link name:(NSString *)name caption:(NSString *)caption description:(NSString *)description
 {
     if ([_facebook isSessionValid]) {
         NSMutableDictionary *params = [NSMutableDictionary dictionaryWithCapacity:4];
         [params setObject:kFbId forKey:@"app_id"];
+        [params setObject:link forKey:@"link"];
         if (name) [params setObject:name forKey:@"name"];
         if (caption) [params setObject:caption forKey:@"caption"];
         if (description) [params setObject:description forKey:@"description"];
+        
         [_facebook dialog:@"feed" andParams:params andDelegate:self];
     }else{
+        [[NSNotificationCenter defaultCenter] postNotificationName:kFBLoggingIn object:nil];
         [_facebook authorize:nil];
     }    
 }
@@ -176,14 +191,25 @@
  * Called when the dialog succeeds and is about to be dismissed.
  */
 - (void)dialogDidComplete:(FBDialog *)dialog{
-    //    DLog(@"complete");
+    DLog(@"complete");
+    // temp code for testing
+        [_facebook logout];
 }
 /**
  * Called when dialog failed to load due to an error.
  */
 - (void)dialog:(FBDialog*)dialog didFailWithError:(NSError *)error{
-    //    DLog(@"Error -> %@", error);
-}
+    DLog(@"Error -> %@", error);
+    // temp code for testing
+    [_facebook logout];
 
+}
+- (void)dialogDidNotComplete:(FBDialog *)dialog
+{
+    DLog(@"did not complete");
+    // temp code for testing
+    [_facebook logout];
+    
+}
 
 @end

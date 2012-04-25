@@ -187,29 +187,15 @@
     }
 }
 #pragma mark - FB Dialog
-/**
- * Called when the dialog succeeds and is about to be dismissed.
- */
 - (void)dialogDidComplete:(FBDialog *)dialog{
     DLog(@"complete");
-    // temp code for testing
-        [_facebook logout];
 }
-/**
- * Called when dialog failed to load due to an error.
- */
 - (void)dialog:(FBDialog*)dialog didFailWithError:(NSError *)error{
     DLog(@"Error -> %@", error);
-    // temp code for testing
-    [_facebook logout];
-
 }
 - (void)dialogDidNotComplete:(FBDialog *)dialog
 {
     DLog(@"did not complete");
-    // temp code for testing
-    [_facebook logout];
-    
 }
 
 @end

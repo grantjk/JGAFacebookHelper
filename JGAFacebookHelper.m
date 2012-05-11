@@ -59,6 +59,14 @@
     }
 }
 
+- (FBRequest *)getFriendsList
+{
+    return [_facebook requestWithGraphPath:@"me/friends"
+                                 andParams:nil 
+                             andHttpMethod:@"GET"
+                               andDelegate:self];
+}
+
 #pragma mark - Post Photo
 - (FBRequest *)shareImage:(UIImage *)image message:(NSString *)message
 {
@@ -169,6 +177,8 @@
 
 - (void)request:(FBRequest *)request didLoad:(id)result
 {
+    DLog(@"Friends request did load, %@", result);
+    
     if ([_delegate respondsToSelector:@selector(helper:didCompleteRequest:)])
     {
         [_delegate helper:self didCompleteRequest:request];

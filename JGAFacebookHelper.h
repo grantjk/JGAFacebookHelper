@@ -29,7 +29,14 @@
 
 - (id)initWithDelegate:(id)delegate permissions:(NSArray *)permissions;
 - (void)login;
+
+// Images
 - (FBRequest *)shareImage:(UIImage *)image message:(NSString *)message;
+
+// Share an image and add options for user generated messages and friend tagging
+- (FBRequest *)shareImage:(UIImage *)image message:(NSString *)message showOptionsFromViewController:(UIViewController *)vc;
+
+// Messages
 - (FBRequest *)postMessage:(NSString *)message;
 
 // link is required

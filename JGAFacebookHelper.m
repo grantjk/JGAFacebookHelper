@@ -7,6 +7,7 @@
 //
 
 #import "JGAFacebookHelper.h"
+#import "JGAFacebookHelperPhotoOptionsViewController.h"
 
 #define kbAccessKey @"FBAccessTokenKey"
 #define kFbExpirationDate @"FBExpirationDateKey"
@@ -62,16 +63,29 @@
 #pragma mark - Post Photo
 - (FBRequest *)shareImage:(UIImage *)image message:(NSString *)message
 {
+    return [self shareImage:image message:message showOptionsFromViewController:nil];
+}
+
+- (FBRequest *)shareImage:(UIImage *)image message:(NSString *)message showOptionsFromViewController:(UIViewController *)vc
+{
     if (!image) return nil;
     
-    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithCapacity:2];
-    [params setObject:image forKey:@"picture"];
-    if(message)[params setObject:message forKey:@"name"];
-    
-    return [_facebook requestWithGraphPath:@"me/photos" 
-                                 andParams:params
-                             andHttpMethod:@"POST"
-                               andDelegate:self];
+    if (vc){
+        JGAFacebookHelperPhotoOptionsViewController *optionsVC = [[JGAFacebookHelperPhotoOptionsViewController alloc] initWithStyle:UITableViewStyleGrouped];
+        UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:optionsVC];
+        [vc.navigationController presentModalViewController:nav animated:YES];
+        return nil;
+    }else{
+        
+        NSMutableDictionary *params = [NSMutableDictionary dictionaryWithCapacity:2];
+        [params setObject:image forKey:@"picture"];
+        if(message)[params setObject:message forKey:@"name"];
+        
+        return [_facebook requestWithGraphPath:@"me/photos" 
+                                     andParams:params
+                                 andHttpMethod:@"POST"
+                                   andDelegate:self];
+    }
 }
 - (FBRequest *)postMessage:(NSString *)message
 {

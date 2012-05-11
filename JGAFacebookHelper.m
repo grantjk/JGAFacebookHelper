@@ -66,7 +66,7 @@
     
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithCapacity:2];
     [params setObject:image forKey:@"picture"];
-    if(message)[params setObject:message forKey:@"message"];
+    if(message)[params setObject:message forKey:@"name"];
     
     return [_facebook requestWithGraphPath:@"me/photos" 
                                  andParams:params

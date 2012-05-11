@@ -13,6 +13,6 @@
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, assign) int facebookId;
 
-
-+ (NSArray *)friendsArrayFromFacebookResult:(id)result;
++ (JGAFacebookFriend *)meFromResult:(id)result;
++ (NSMutableArray *)friendsArrayFromFacebookResult:(id)result;
 @end

@@ -7,6 +7,8 @@
 //
 
 #import "JGAFacebookHelper.h"
+#import "JGAFacebookFriend.h"
+#import "JGAFacebookFriendSelectionViewController.h"
 
 #define kbAccessKey @"FBAccessTokenKey"
 #define kFbExpirationDate @"FBExpirationDateKey"
@@ -16,19 +18,28 @@
 @synthesize facebook = _facebook;
 @synthesize delegate = _delegate;
 @synthesize permissions = _permissions;
+@synthesize meRequest = _meRequest;
+@synthesize friendRequest = _friendRequest;
+@synthesize photoPostRequest = _photoPostRequest;
+@synthesize friends = _friends;
+@synthesize photoIdString = _photoIdString;
+@synthesize me = _me;
 
 - (id)initWithDelegate:(id)delegate permissions:(NSArray *)permissions
 {
     if (self = [super init]) {
         self.delegate = delegate;
         self.permissions = permissions;
+        self.friends = [NSMutableArray arrayWithCapacity:1];
     }
     return self;
 }
 
 -(void)checkForSavedFBToken
 {
+    
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    
     if ([defaults objectForKey:kbAccessKey] 
         && [defaults objectForKey:kFbExpirationDate]) {
         _facebook.accessToken = [defaults objectForKey:kbAccessKey];
@@ -61,10 +72,14 @@
 
 - (FBRequest *)getFriendsList
 {
-    return [_facebook requestWithGraphPath:@"me/friends"
-                                 andParams:nil 
-                             andHttpMethod:@"GET"
-                               andDelegate:self];
+    // Can't pass nil in params as it removes the token
+    if (!_me) {
+        self.meRequest = [_facebook requestWithGraphPath:@"me" andDelegate:self];
+        return _meRequest;
+    }else {
+        self.friendRequest = [_facebook requestWithGraphPath:@"me/friends" andDelegate:self];
+        return _friendRequest;
+    }
 }
 
 #pragma mark - Post Photo
@@ -76,11 +91,13 @@
     [params setObject:image forKey:@"picture"];
     if(message)[params setObject:message forKey:@"message"];
     
-    return [_facebook requestWithGraphPath:@"me/photos" 
+    self.photoPostRequest = [_facebook requestWithGraphPath:@"me/photos" 
                                  andParams:params
                              andHttpMethod:@"POST"
                                andDelegate:self];
+    return _photoPostRequest;
 }
+
 - (FBRequest *)postMessage:(NSString *)message
 {
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithCapacity:2];
@@ -177,12 +194,23 @@
 
 - (void)request:(FBRequest *)request didLoad:(id)result
 {
-    DLog(@"Friends request did load, %@", result);
-    
-    if ([_delegate respondsToSelector:@selector(helper:didCompleteRequest:)])
-    {
+    if (request == _meRequest) {
+        self.me = [JGAFacebookFriend meFromResult:result];
+        [_friends addObject:_me];
+        self.friendRequest = [_facebook requestWithGraphPath:@"me/friends" andDelegate:self];
+    }
+    else if (request == _friendRequest) {
+        [_friends addObjectsFromArray:[JGAFacebookFriend friendsArrayFromFacebookResult:result]];
+        [_delegate helper:self didLoadFriends:_friends];
+    }
+
+    else if (request == _photoPostRequest){
+        self.photoIdString = [result objectForKey:@"id"];
+        [_delegate helper:self didUploadPhoto:_photoIdString];
+    }
+    else {
         [_delegate helper:self didCompleteRequest:request];
-    }    
+    }
 }
 
 /**
@@ -214,5 +242,51 @@
 {
     DLog(@"did not complete");
 }
+
+#pragma mark - Friend Selection
+- (void)showFriendSelectionInViewController:(UIViewController *)vc
+{
+    JGAFacebookFriendSelectionViewController *selectionController = [[JGAFacebookFriendSelectionViewController alloc] initWithStyle:UITableViewStylePlain];
+    selectionController.friends = _friends;
+    selectionController.delegate = self;
+    
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:selectionController];
+    [vc.navigationController presentModalViewController:nav animated:YES];
+}
+
+#pragma mark - Friend Selection Delegate
+- (void)controller:(JGAFacebookFriendSelectionViewController *)controller didSelectFriends:(NSArray *)friends
+{
+    [self tagFriends:friends];
+}
+
+#pragma mark - Friend Tagging
+- (void)tagFriends:(NSArray *)friends
+{
+    if(friends.count == 0) return;
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithCapacity:1];
+    NSMutableString *tags = [NSMutableString stringWithFormat:@"["];
+    
+    for (int i = 0; i<friends.count; i++) {
+        JGAFacebookFriend *friend = [friends objectAtIndex:i];
+        [tags appendString:[NSString stringWithFormat:@"{tag_uid: \"%d\"}", friend.facebookId]];
+        
+        if (i != friends.count -1) {
+            [tags appendString:@","];
+        }
+    }
+    [tags appendString:@"]"];
+    
+    [params setObject:tags forKey:@"tags"];
+    NSString *photoPath = [NSString stringWithFormat:@"%@/tags", _photoIdString];
+    
+    [_facebook requestWithGraphPath:photoPath 
+                          andParams:params
+                      andHttpMethod:@"POST" 
+                        andDelegate:self];
+    
+}
+
 
 @end

@@ -16,12 +16,14 @@
 
 @implementation JGAFacebookFriendSelectionViewController
 @synthesize friends = _friends;
+@synthesize selectedFriends = _selectedFriends;
+@synthesize delegate = _delegate;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
     self = [super initWithStyle:style];
     if (self) {
-        // Custom initialization
+        self.selectedFriends = [NSMutableArray arrayWithCapacity:5];
     }
     return self;
 }
@@ -29,12 +31,11 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    
+    self.navigationItem.title = @"Tag Friends in the Photo";
+    
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Don't Tag" style:UIBarButtonItemStyleBordered target:self action:@selector(cancelButtonPressed:)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Tag" style:UIBarButtonItemStyleDone target:self action:@selector(doneButtonPressed:)];
 }
 
 - (void)viewDidUnload
@@ -46,7 +47,18 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    return (interfaceOrientation == UIInterfaceOrientationPortrait);
+    return YES;
+}
+
+- (void)cancelButtonPressed:(id)sender
+{
+    [self.navigationController dismissModalViewControllerAnimated:YES];
+}
+
+- (void)doneButtonPressed:(id)sender
+{
+    [_delegate controller:self didSelectFriends:_selectedFriends];
+    [self.navigationController dismissModalViewControllerAnimated:YES];
 }
 
 #pragma mark - Table view data source
@@ -60,7 +72,7 @@
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return 0;
+    return _friends.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -69,62 +81,48 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if (!cell) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
-        cell.accessoryType = UITableViewCellAccessoryCheckmark;
     }
+    
+    JGAFacebookFriend *friend = [_friends objectAtIndex:indexPath.row];
+    
+    if ([_selectedFriends containsObject:friend]) {
+        cell.accessoryType = UITableViewCellAccessoryCheckmark;
+    }else {
+        cell.accessoryType = UITableViewCellAccessoryNone;
+    }
+    
+    
+    cell.textLabel.text = friend.name;
     
     return cell;
 }
-
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
 
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    // Navigation logic may go here. Create and push another view controller.
-    /*
-     <#DetailViewController#> *detailViewController = [[<#DetailViewController#> alloc] initWithNibName:@"<#Nib name#>" bundle:nil];
-     // ...
-     // Pass the selected object to the new view controller.
-     [self.navigationController pushViewController:detailViewController animated:YES];
-     */
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+    UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    JGAFacebookFriend *friend = [_friends objectAtIndex:indexPath.row];
+
+    if ([_selectedFriends containsObject:friend]) {
+        [self deselectFriend:friend inCell:cell];
+    }else {
+        [self selectFriend:friend inCell:cell];
+    }
 }
+
+- (void)selectFriend:(JGAFacebookFriend *)friend inCell:(UITableViewCell *)cell
+{
+    [_selectedFriends addObject:friend];
+    cell.accessoryType = UITableViewCellAccessoryCheckmark;
+}
+- (void)deselectFriend:(JGAFacebookFriend *)friend inCell:(UITableViewCell *)cell
+{
+    [_selectedFriends removeObject:friend];
+    cell.accessoryType = UITableViewCellAccessoryNone;
+}
+
 
 @end

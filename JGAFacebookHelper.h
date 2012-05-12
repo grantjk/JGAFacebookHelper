@@ -53,11 +53,13 @@
 
 
 
-
-
-
+// Initialize
 - (id)initWithDelegate:(id)delegate permissions:(NSArray *)permissions;
+
+// Login
 - (void)login;
+
+// Custom requests
 - (FBRequest *)shareImage:(UIImage *)image message:(NSString *)message;
 - (FBRequest *)shareImage:(UIImage *)image message:(NSString *)message tagFriendsFromViewController:(UIViewController *)viewController;
 - (FBRequest *)postMessage:(NSString *)message;
@@ -67,6 +69,7 @@
 
 // Friends
 - (FBRequest *)getFriendsList;
+- (FBRequest *)getFriendsListAndShowInViewController:(UIViewController *)viewController;
 - (void)showFriendSelectionInViewController:(UIViewController *)vc;
 
 @end

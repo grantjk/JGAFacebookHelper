@@ -24,6 +24,7 @@
 @synthesize friends = _friends;
 @synthesize photoIdString = _photoIdString;
 @synthesize me = _me;
+@synthesize viewController = _viewController;
 
 - (id)initWithDelegate:(id)delegate permissions:(NSArray *)permissions
 {
@@ -72,8 +73,16 @@
 
 - (FBRequest *)getFriendsList
 {
-    // Can't pass nil in params as it removes the token
+    return [self getFriendsListAndShowInViewController:nil];
+}
+
+- (FBRequest *)getFriendsListAndShowInViewController:(UIViewController *)viewController
+{
+    if(viewController) self.viewController = viewController;
+    
+    // If we don't have current user, then fetch them as well
     if (!_me) {
+        // Can't pass nil in params as it removes the token
         self.meRequest = [_facebook requestWithGraphPath:@"me" andDelegate:self];
         return _meRequest;
     }else {
@@ -85,17 +94,23 @@
 #pragma mark - Post Photo
 - (FBRequest *)shareImage:(UIImage *)image message:(NSString *)message
 {
+    return [self shareImage:image message:message tagFriendsFromViewController:nil];
+}
+
+- (FBRequest *)shareImage:(UIImage *)image message:(NSString *)message tagFriendsFromViewController:(UIViewController *)viewController
+{
     if (!image) return nil;
+    if (viewController) self.viewController = viewController;
     
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithCapacity:2];
     [params setObject:image forKey:@"picture"];
     if(message)[params setObject:message forKey:@"message"];
     
     self.photoPostRequest = [_facebook requestWithGraphPath:@"me/photos" 
-                                 andParams:params
-                             andHttpMethod:@"POST"
-                               andDelegate:self];
-    return _photoPostRequest;
+                                                  andParams:params
+                                              andHttpMethod:@"POST"
+                                                andDelegate:self];
+    return _photoPostRequest;    
 }
 
 - (FBRequest *)postMessage:(NSString *)message
@@ -194,19 +209,32 @@
 
 - (void)request:(FBRequest *)request didLoad:(id)result
 {
-    if (request == _meRequest) {
+    if (request == _photoPostRequest){
+        self.photoIdString = [result objectForKey:@"id"];
+        
+        // If we already know the view controller, just get the friends
+        if (_viewController) {
+            [self getFriendsListAndShowInViewController:_viewController];
+        }else {
+            [_delegate helper:self didUploadPhoto:_photoIdString];
+        }
+    }
+    else if (request == _meRequest) {
         self.me = [JGAFacebookFriend meFromResult:result];
         [_friends addObject:_me];
         self.friendRequest = [_facebook requestWithGraphPath:@"me/friends" andDelegate:self];
     }
     else if (request == _friendRequest) {
         [_friends addObjectsFromArray:[JGAFacebookFriend friendsArrayFromFacebookResult:result]];
-        [_delegate helper:self didLoadFriends:_friends];
-    }
-
-    else if (request == _photoPostRequest){
-        self.photoIdString = [result objectForKey:@"id"];
-        [_delegate helper:self didUploadPhoto:_photoIdString];
+        
+        // If the view controller was originall passed in, then show the view controller
+        if (_viewController) {
+            [self showFriendSelectionInViewController:_viewController];
+        }
+        // Otherwise just notify the delegate
+        else {
+            [_delegate helper:self didLoadFriends:_friends];
+        }
     }
     else {
         [_delegate helper:self didCompleteRequest:request];

@@ -12,12 +12,18 @@
 @synthesize name = _name;
 @synthesize facebookId = _facebookId;
 
++ (JGAFacebookFriend *)userFromDictionary:(id)result
+{
+    JGAFacebookFriend *user = [[JGAFacebookFriend alloc] init];
+    user.name = [result objectForKey:@"name"];
+    user.facebookId = [[result objectForKey:@"id"]intValue];
+    return user;
+    
+}
+
 + (JGAFacebookFriend *)meFromResult:(id)result
 {
-    JGAFacebookFriend *me = [[JGAFacebookFriend alloc] init];
-    me.name = [result objectForKey:@"name"];
-    me.facebookId = [[result objectForKey:@"id"]intValue];
-    return me;
+    return [JGAFacebookFriend userFromDictionary:result];
 }
 
 + (NSMutableArray *)friendsArrayFromFacebookResult:(id)result
@@ -29,10 +35,7 @@
     
     for (int i = 0; i<count; i++){
         id object = [data objectAtIndex:i];
-        JGAFacebookFriend *friend = [[JGAFacebookFriend alloc] init];
-        friend.name = [object objectForKey:@"name"];
-        friend.facebookId = [[object objectForKey:@"id"]intValue];
-        [array addObject:friend];
+        [array addObject:[JGAFacebookFriend userFromDictionary:object]];
     }
     
     NSArray *descriptors = [NSArray arrayWithObjects:

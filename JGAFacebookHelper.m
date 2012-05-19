@@ -82,10 +82,17 @@
     
     // If we don't have current user, then fetch them as well
     if (!_me) {
+        // Reset friends
+        [_friends removeAllObjects];
+        
         // Can't pass nil in params as it removes the token
         self.meRequest = [_facebook requestWithGraphPath:@"me" andDelegate:self];
         return _meRequest;
     }else {
+        // Reset friends but add me back
+        [_friends removeAllObjects];
+        [_friends addObject:_me];
+        
         self.friendRequest = [_facebook requestWithGraphPath:@"me/friends" andDelegate:self];
         return _friendRequest;
     }
@@ -284,6 +291,10 @@
 }
 
 #pragma mark - Friend Selection Delegate
+- (void)controllerDidCancel:(JGAFacebookFriendSelectionViewController *)controller
+{
+    [_delegate helper:self didCompleteRequest:nil];
+}
 - (void)controller:(JGAFacebookFriendSelectionViewController *)controller didSelectFriends:(NSArray *)friends
 {
     [self tagFriends:friends];

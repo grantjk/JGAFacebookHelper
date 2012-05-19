@@ -69,6 +69,7 @@ static NSString *kHeaderKey = @"header";
 
 - (void)cancelButtonPressed:(id)sender
 {
+    [_delegate controllerDidCancel:self];
     [self.navigationController dismissModalViewControllerAnimated:YES];
 }
 
@@ -163,11 +164,7 @@ static NSString *kHeaderKey = @"header";
 
 #pragma mark - Data Helpers
 - (JGAFacebookFriend *)friendForIndexPath:(NSIndexPath *)indexPath
-{
-    
-    DLog(@"_friends -> %@", _friends);
-    
-    
+{    
     NSArray *friends = [[_friends objectAtIndex:indexPath.section] objectForKey:kFriendsKey];
     return [friends objectAtIndex:indexPath.row];
 }

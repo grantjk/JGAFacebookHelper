@@ -43,6 +43,7 @@
     }
     
     /* TEST */
+    /*
 #if DEBUG
     JGAFacebookFriend *friend = [[JGAFacebookFriend alloc] init];
     friend.name = @"Adam Gregory";
@@ -113,6 +114,7 @@
     friend.name = @"Yoomi";
     [array addObject:friend];    
 #endif
+     */
     
     
     NSArray *descriptors = [NSArray arrayWithObjects:

@@ -11,6 +11,7 @@
 @class JGAFacebookFriendSelectionViewController;
 @protocol JGAFacebookFriendSelectionViewControllerDelegate <NSObject>
 - (void)controller:(JGAFacebookFriendSelectionViewController *)controller didSelectFriends:(NSArray *)friends;
+- (void)controllerDidCancel:(JGAFacebookFriendSelectionViewController *)controller;
 @end
 
 @class JGAFacebookFriend;

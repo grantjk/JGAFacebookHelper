@@ -274,8 +274,9 @@
 #pragma mark - Friend Selection
 - (void)showFriendSelectionInViewController:(UIViewController *)vc
 {
-    JGAFacebookFriendSelectionViewController *selectionController = [[JGAFacebookFriendSelectionViewController alloc] initWithStyle:UITableViewStylePlain];
-    selectionController.friends = _friends;
+    JGAFacebookFriendSelectionViewController *selectionController = [[JGAFacebookFriendSelectionViewController alloc] 
+                                                                     initWithStyle:UITableViewStylePlain
+                                                                     friends: _friends];
     selectionController.delegate = self;
     
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:selectionController];

@@ -18,6 +18,10 @@
 
 @property (nonatomic, strong) NSArray *friends;
 @property (nonatomic, strong) NSMutableArray *selectedFriends;
+@property (nonatomic, strong) NSMutableArray *indices;
 @property (nonatomic, weak) id <NSObject, JGAFacebookFriendSelectionViewControllerDelegate> delegate;
+
+// Takes friend list and indexes it
+- (id)initWithStyle:(UITableViewStyle)style friends:(NSMutableArray *)friends;
 
 @end

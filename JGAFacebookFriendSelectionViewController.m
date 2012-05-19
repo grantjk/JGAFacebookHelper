@@ -18,12 +18,23 @@
 @synthesize friends = _friends;
 @synthesize selectedFriends = _selectedFriends;
 @synthesize delegate = _delegate;
+@synthesize indices = _indices;
 
-- (id)initWithStyle:(UITableViewStyle)style
+static NSString *kFriendsKey = @"friends";
+static NSString *kHeaderKey = @"header";
+
+- (id)initWithStyle:(UITableViewStyle)style friends:(NSMutableArray *)friends
 {
     self = [super initWithStyle:style];
     if (self) {
         self.selectedFriends = [NSMutableArray arrayWithCapacity:5];
+        self.friends = [JGAFacebookFriend indexedFriendsList:friends];
+        
+        
+        self.indices = [NSMutableArray arrayWithCapacity:_friends.count];
+        for (int i =0; i < _friends.count; i++) {
+            [_indices addObject:[[_friends objectAtIndex:i] objectForKey:kHeaderKey]];
+        }
     }
     return self;
 }
@@ -34,8 +45,14 @@
     
     self.navigationItem.title = @"Tag Friends in the Photo";
     
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Don't Tag" style:UIBarButtonItemStyleBordered target:self action:@selector(cancelButtonPressed:)];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Tag" style:UIBarButtonItemStyleDone target:self action:@selector(doneButtonPressed:)];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Don't Tag" 
+                                                                             style:UIBarButtonItemStyleBordered 
+                                                                            target:self 
+                                                                            action:@selector(cancelButtonPressed:)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Tag" 
+                                                                              style:UIBarButtonItemStyleDone 
+                                                                                target:self 
+                                                                             action:@selector(doneButtonPressed:)];
 }
 
 - (void)viewDidUnload
@@ -66,13 +83,13 @@
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     // Return the number of sections.
-    return 1;
+    return _friends.count;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     // Return the number of rows in the section.
-    return _friends.count;
+    return [[[_friends objectAtIndex:section] objectForKey:kFriendsKey] count];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -83,7 +100,7 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
-    JGAFacebookFriend *friend = [_friends objectAtIndex:indexPath.row];
+    JGAFacebookFriend *friend = [self friendForIndexPath:indexPath];
     
     if ([_selectedFriends containsObject:friend]) {
         cell.accessoryType = UITableViewCellAccessoryCheckmark;
@@ -91,7 +108,12 @@
         cell.accessoryType = UITableViewCellAccessoryNone;
     }
     
-    
+    if (friend.isMe) {
+        cell.textLabel.textColor = [UIColor blueColor];
+    }else {
+        cell.textLabel.textColor = [UIColor blackColor];
+    }
+
     cell.textLabel.text = friend.name;
     
     return cell;
@@ -104,7 +126,7 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     
     UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
-    JGAFacebookFriend *friend = [_friends objectAtIndex:indexPath.row];
+    JGAFacebookFriend *friend = [self friendForIndexPath:indexPath];
 
     if ([_selectedFriends containsObject:friend]) {
         [self deselectFriend:friend inCell:cell];
@@ -122,6 +144,32 @@
 {
     [_selectedFriends removeObject:friend];
     cell.accessoryType = UITableViewCellAccessoryNone;
+}
+
+# pragma mark - Sections
+- (NSArray *)sectionIndexTitlesForTableView:(UITableView *)tableView 
+{
+    return _indices;
+}
+
+- (NSInteger)tableView:(UITableView *)tableView sectionForSectionIndexTitle:(NSString *)title atIndex:(NSInteger)index 
+{
+    return [_indices indexOfObject:title];
+}
+
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
+	return [[_friends objectAtIndex:section] objectForKey:kHeaderKey];
+}
+
+#pragma mark - Data Helpers
+- (JGAFacebookFriend *)friendForIndexPath:(NSIndexPath *)indexPath
+{
+    
+    DLog(@"_friends -> %@", _friends);
+    
+    
+    NSArray *friends = [[_friends objectAtIndex:indexPath.section] objectForKey:kFriendsKey];
+    return [friends objectAtIndex:indexPath.row];
 }
 
 
